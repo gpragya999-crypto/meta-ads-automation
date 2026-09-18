@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Run {{ run_id[:8] }} — Meta Ads Automation{% endblock %}
+{% block content %}
+<h1>Pipeline run: {{ tag }}</h1>
+<p class="sub">Run id {{ run_id }} — <span id="status-pill" class="status-pill status-running">running</span></p>
+
+<div class="card">
+  <div id="log" class="log">Starting...</div>
+</div>
+
+<div id="report-link" class="card" style="display:none;">
+  Done! <a class="btn" id="report-btn" href="#">View report</a>
+</div>
+
+<script>
+const runId = {{ run_id | tojson }};
+const logEl = document.getElementById('log');
+const pillEl = document.getElementById('status-pill');
+const reportLinkEl = document.getElementById('report-link');
+const reportBtn = document.getElementById('report-btn');
+
+async function poll() {
+  const res = await fetch(`/api/status/${runId}`);
+  const data = await res.json();
+  logEl.textContent = data.log.join('\n');
+  logEl.scrollTop = logEl.scrollHeight;
+
+  pillEl.textContent = data.status;
+  pillEl.className = 'status-pill status-' + data.status;
+
+  if (data.status === 'done') {
+    reportBtn.href = `/report/${encodeURIComponent(data.tag)}`;
+    reportLinkEl.style.display = 'block';
+  } else if (data.status === 'running') {
+    setTimeout(poll, 1000);
+  }
+}
+poll();
+</script>
+{% endblock %}

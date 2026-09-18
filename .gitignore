@@ -1,0 +1,16 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+server.log
+data/raw/
+data/processed/
+data/media/
+data/transcripts/
+data/output/
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/media/.gitkeep
+!data/transcripts/.gitkeep
+!data/output/.gitkeep

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Settings — Meta Ads Automation{% endblock %}
+{% block content %}
+<h1>API keys</h1>
+<p class="sub">Saved to <code>.env</code> in the project folder. Never shared anywhere else.</p>
+<div class="card">
+  <form method="post">
+    <label>APIFY_TOKEN <span class="hint">— from console.apify.com/account/integrations</span></label>
+    <input type="password" name="APIFY_TOKEN" placeholder="{{ '•••• already set' if current.APIFY_TOKEN else 'not set' }}">
+
+    <label>ASSEMBLYAI_API_KEY <span class="hint">— transcription</span></label>
+    <input type="password" name="ASSEMBLYAI_API_KEY" placeholder="{{ '•••• already set' if current.ASSEMBLYAI_API_KEY else 'not set' }}">
+
+    <label>ANTHROPIC_API_KEY <span class="hint">— Claude hook analysis</span></label>
+    <input type="password" name="ANTHROPIC_API_KEY" placeholder="{{ '•••• already set' if current.ANTHROPIC_API_KEY else 'not set' }}">
+
+    <p class="hint">Leave a field blank to keep its current value.</p>
+    <button type="submit">Save</button>
+  </form>
+</div>
+{% endblock %}

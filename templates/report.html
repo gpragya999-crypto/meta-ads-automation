@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Report: {{ tag }} — Meta Ads Automation{% endblock %}
+{% block content %}
+<h1>Winning creatives report — {{ tag }}</h1>
+<p class="sub">
+  <a class="btn secondary" href="{{ url_for('download_report', tag=tag, kind='csv') }}">Download CSV</a>
+  <a class="btn secondary" href="{{ url_for('download_report', tag=tag, kind='md') }}">Download Markdown</a>
+  {% if has_hook_prompts %}
+  <a class="btn" href="{{ url_for('hook_prompts', tag=tag) }}">View hook-analysis prompts (paste into Claude)</a>
+  {% endif %}
+</p>
+<div class="card report-md">
+  {{ report_html | safe }}
+</div>
+{% endblock %}

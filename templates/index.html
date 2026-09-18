@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Run — Meta Ads Automation{% endblock %}
+{% block content %}
+<h1>Run the pipeline</h1>
+<p class="sub">Scrape Meta ads → download media → transcribe → score winning signals → Claude hook analysis → ranked report.</p>
+
+<div class="card">
+  <form method="post" action="{{ url_for('run_pipeline') }}">
+    <div class="checkbox-row">
+      <input type="checkbox" name="use_sample" id="use_sample" value="1" {{ 'checked' if not has_apify_key else '' }} onchange="toggleSample()">
+      <label class="inline" for="use_sample">Use bundled sample data — test the whole flow with <strong>zero API keys</strong> (downloads a few small public sample videos/images so you can see real previews)</label>
+    </div>
+
+    <div id="live-fields">
+      <label>Tag (short label for this run, e.g. brand name)</label>
+      <input type="text" name="tag" value="mybrand" required>
+
+      <label>Facebook Page / Ad Library URLs — one per line (first = your brand, rest = competitors)</label>
+      <textarea name="urls" oninput="onUrlsTyped()" placeholder="https://www.facebook.com/yourbrand&#10;https://www.facebook.com/competitor1"></textarea>
+
+      <div class="row">
+        <div>
+          <label>Results limit per URL</label>
+          <input type="number" name="limit" value="10" min="1" max="100">
+        </div>
+        <div>
+          <label>Active status</label>
+          <select name="active">
+            <option value="all">Active and inactive</option>
+            <option value="active">Active only</option>
+            <option value="inactive">Inactive only</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" name="skip_transcribe" id="skip_transcribe" value="1" {{ 'checked' if not has_assemblyai_key else '' }}>
+        <label class="inline" for="skip_transcribe">Skip transcription {{ '(no ASSEMBLYAI_API_KEY set)' if not has_assemblyai_key else '' }}</label>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" name="skip_hooks" id="skip_hooks" value="1">
+        <label class="inline" for="skip_hooks">Skip hook analysis entirely (no Claude call, no prompts file either)</label>
+      </div>
+      {% if not has_anthropic_key %}
+      <p class="hint">No ANTHROPIC_API_KEY set — leave the box above unchecked and you'll get a ready-to-paste prompts file per ad instead of automatic analysis.</p>
+      {% endif %}
+    </div>
+
+    <div style="margin-top: 18px;">
+      <button type="submit">Run pipeline</button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <strong>API keys:</strong>
+  Apify {{ '✅' if has_apify_key else '❌ not set' }} ·
+  AssemblyAI (transcription) {{ '✅' if has_assemblyai_key else '❌ not set' }} ·
+  Anthropic (hook analysis) {{ '✅' if has_anthropic_key else '❌ not set' }}
+  — manage these on the <a href="{{ url_for('settings') }}">Settings</a> page.
+</div>
+
+<script>
+function toggleSample() {
+  document.getElementById('live-fields').style.display =
+    document.getElementById('use_sample').checked ? 'none' : 'block';
+}
+function onUrlsTyped() {
+  // Typing a real URL always wins — don't let a stale "sample" checkbox
+  // silently swallow real input (this is exactly what bit us once already).
+  const box = document.getElementById('use_sample');
+  if (box.checked) {
+    box.checked = false;
+    toggleSample();
+  }
+}
+// Sync visibility with the checkbox's actual state on load, instead of
+// trusting a separately-computed inline style that can go stale on a
+// cached/back-forward page load.
+toggleSample();
+</script>
+{% endblock %}
